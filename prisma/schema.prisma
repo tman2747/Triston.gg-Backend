@@ -24,12 +24,3 @@ enum Role {
   USER
   ADMIN 
   }
-
-model Session {
-  id        String   @id
-  sid       String   @unique
-  data      String   @db.Text   // or @db.MediumText for MySQL
-  expiresAt DateTime
-
-  @@index([expiresAt])
-}
