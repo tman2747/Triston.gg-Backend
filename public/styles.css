@@ -1,0 +1,94 @@
+@font-face {
+  font-family: jetBrains-mono;
+  src: url("./fonts/JetBrainsMono-Regular.ttf");
+  font-weight: normal;
+}
+
+:root {
+  --primary: #ffffff;
+
+  --secondary-1: #01040f;
+  --secondary-2: #1e2025;
+  --secondary-3: #35373d;
+  --secondary-4: #4f5055;
+
+  --success: #22946e;
+  --danger: #9c2121;
+}
+
+html {
+  font-size: 10px;
+  box-sizing: border-box;
+}
+
+* {
+  padding: 0;
+  margin: 0px;
+  font-family: jetBrains-mono, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+/* * {
+  outline: 1px solid var(--danger);
+} */
+
+body {
+  min-height: 100vh;
+  min-height: 100svh; /* for mobile so the view port automatically accounts for the address bar going up and down*/
+  /* this is to make the rest of the page a flex container that way the bottom of the content will grow if its not big enough to fill the page */
+  display: flex;
+  /* same with this*/
+  flex-direction: column;
+  background-color: #b8b8b8;
+  font-size: 16px;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font-size: inherit;
+  font-family: inherit;
+}
+
+input {
+  padding: 0px 0px;
+  border: black solid 1px;
+}
+
+input:focus {
+  border: black solid 1px;
+  box-shadow: none;
+  outline: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+a:visited {
+  text-decoration: none;
+  color: inherit;
+}
+
+.pageContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 70vw;
+  margin: 10px auto;
+}

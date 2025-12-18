@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div>
+      <% if (currentUser){ %>
+      <a href="/logout">Logout</a>
+      <% }else{ %>
+      <a href="/login">Login</a> <a href="/sign-up">Sign Up</a>
+      <% } %>
+    </div>
+    <div>hello <% if(currentUser){ %> <%= currentUser.username %> <% } %></div>
+    <%= stuff %>
+    <a href="/protectedPage">Protected Page</a>
+  </body>
+</html>

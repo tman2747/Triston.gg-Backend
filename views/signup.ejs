@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Sign up</h1>
+    <%- include('partials/errors.ejs') %>
+    <form action="" method="post">
+      <section>
+        <label for="username">Username</label>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          autocomplete="username"
+          required
+          autofocus
+        />
+      </section>
+      <section>
+        <label for="password">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autocomplete="new-password"
+          required
+        />
+      </section>
+      <button type="submit">sign up</button>
+    </form>
+  </body>
+</html>
