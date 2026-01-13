@@ -19,9 +19,7 @@ export const validateSignup = [
     const errors = validationResult(req);
     console.log(errors.errors);
     if (!errors.isEmpty()) {
-      return res.render("signup", {
-        errors: errors.array(),
-      });
+      return res.status(400).json(errors.array());
     }
     next(); // this might not be needed
   },
