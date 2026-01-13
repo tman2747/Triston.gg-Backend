@@ -4,10 +4,13 @@ import session from "express-session";
 import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { fileURLToPath } from "node:url";
 import { prisma } from "./lib/prisma.ts";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 
 // include routers
 import { indexRouter } from "./routes/indexRouter.js";
 import { usersRouter } from "./routes/usersRouter.js";
+import { authRouter } from "./routes/authRouter.js";
 
 // ESM replacement for __dirname / __filename  because esm does not give you __filename as it is built for the browser or something XD
 const __filename = fileURLToPath(import.meta.url);
@@ -29,10 +32,17 @@ const PORT = process.env.PORT || 3000;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Vite dev server
+    credentials: true, // REQUIRED for cookies
+  })
+);
 // routes
+app.use("/auth", authRouter);
 app.use("/users", usersRouter);
 app.use("/", indexRouter);
-
 // error handling
 app.use((err, req, res, next) => {
   console.log(err);
