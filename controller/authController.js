@@ -1,9 +1,10 @@
 import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma.ts";
 import bcrypt from "bcryptjs";
+import { use } from "react";
 
 export function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: "1s" });
+  return jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: "5m" });
 }
 
 function generateRefreshToken(payload) {
@@ -36,15 +37,23 @@ export const signup = async (req, res, next) => {
     const username = req.body.username;
     const password = await bcrypt.hash(req.body.password, 10);
     const email = req.body.email;
+    const exist = await prisma.user.findFirst({
+      where: { username: username },
+    });
+    if (exist) {
+      console.log(true);
+      res.status(409).json({ error: { message: "Username is taken" } });
+      return;
+    }
     let createdUser = await prisma.user.create({
       data: { username: username, password: password, email: email },
       select: { id: true, username: true },
     });
     console.log(await createdUser);
-    res.status(201).json([{ test: "test" }]);
+    res.status(201).json({ error: { message: "Test" } });
   } catch (error) {
     console.log(error);
-    res.status(409).json([{ msg: "error signing up" }]);
+    res.status(409).json([{ test: "Error signing up" }]);
   }
 };
 
@@ -58,11 +67,13 @@ export const login = async (req, res, next) => {
       where: { username: username },
     });
     if (!user || !password) {
-      return res.status(401).json({ msg: "Invalid credentials" });
+      return res
+        .status(401)
+        .json({ error: { message: "Invalid Credentials" } });
     }
     const passwordMatch = await bcrypt.compare(
       req.body.password,
-      user.password
+      user.password,
     );
     if (!passwordMatch) {
       return res.status(401).json({ msg: "Invalid credentials" });
@@ -71,6 +82,7 @@ export const login = async (req, res, next) => {
     const infoWeWantSerlized = { id: user.id, name: username, role: user.role };
 
     const accessToken = generateAccessToken(infoWeWantSerlized);
+    console.log(accessToken);
     const refreshToken = generateRefreshToken({ id: infoWeWantSerlized.id });
     res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
@@ -93,7 +105,7 @@ export const getPosts = async (req, res, next) => {
       await prisma.user.findFirst({
         where: { username: req.user.name },
         select: { id: true, username: true },
-      })
+      }),
     );
   } else console.log("error");
 };
@@ -137,6 +149,7 @@ export const refresh = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
+  // delete refresh token from db once i add "sessions"
   res.clearCookie("refresh_token", { path: "/auth/refresh" });
   return res.sendStatus(204);
 };
