@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { use } from "react";
 
 export function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: "5m" });
+  return jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: "5s" });
 }
 
 function generateRefreshToken(payload) {
@@ -21,7 +21,9 @@ export function authenticateToken(req, res, next) {
   jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
     if (err) {
       console.log("failed to verify token (could of timed out)");
-      return res.sendStatus(403);
+      return res
+        .status(401)
+        .json({ error: { message: "failed to verify token" } });
     }
     req.user = user;
     next();
@@ -53,7 +55,7 @@ export const signup = async (req, res, next) => {
     res.status(201).json({ error: { message: "Test" } });
   } catch (error) {
     console.log(error);
-    res.status(409).json([{ test: "Error signing up" }]);
+    res.status(500).json([{ test: "Error signing up" }]);
   }
 };
 
@@ -82,7 +84,6 @@ export const login = async (req, res, next) => {
     const infoWeWantSerlized = { id: user.id, name: username, role: user.role };
 
     const accessToken = generateAccessToken(infoWeWantSerlized);
-    console.log(accessToken);
     const refreshToken = generateRefreshToken({ id: infoWeWantSerlized.id });
     res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
@@ -94,8 +95,8 @@ export const login = async (req, res, next) => {
 
     return res.status(200).json({ accessToken: accessToken });
   } catch (error) {
-    // return res.status(401).json({ msg: "error logging in" });
-    console.log("ERROR!!!: ", error);
+    console.log("ERROR!!! at auth controller: ", error);
+    return res.status(401).json({ msg: "error logging in" });
   }
 };
 
