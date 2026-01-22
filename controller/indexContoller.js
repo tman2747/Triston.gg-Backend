@@ -13,6 +13,7 @@ export const getProtectedRoute = (req, res, next) => {
 export async function getPosts(req, res, next) {
   console.log("hit");
   const posts = await prisma.post.findMany({
+    orderBy: { createdAt: "desc" },
     select: {
       id: true,
       title: true,
