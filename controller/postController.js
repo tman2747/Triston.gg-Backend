@@ -33,7 +33,7 @@ function getMaxSlug(baseSlug, existing) {
   return slug;
 }
 
-export async function getExcerpt(content, maxLength = 120) {
+export async function getExcerpt(content, maxLength = 134) {
   const file = await remark().use(remarkParse).use(strip).process(content);
 
   let text = String(file).replace(/\s+/g, " ").trim();
@@ -53,6 +53,8 @@ export async function createPost(req, res, next) {
     // might  be able to bundle something like this into
     // a authchecker middleware but for now it works
     console.log("no access");
+    //todo fix status
+    return res.status(400).json({});
   }
   // probably should pass this in to a validation middleware
   const title = req.body.title;
@@ -62,13 +64,24 @@ export async function createPost(req, res, next) {
     where: { slug: { startsWith: baseSlug } },
     select: { slug: true },
   });
-
   const slug = getMaxSlug(baseSlug, existing);
   const excerpt = await getExcerpt(content);
   const authorId = req.user.id;
-  console.log(authorId);
-
-  // prisma.post.create();
+  console.log(title, slug, excerpt, content, authorId);
+  try {
+    await prisma.post.create({
+      data: {
+        title: title,
+        slug: slug,
+        excerpt: excerpt,
+        content: content,
+        authorId: authorId,
+      },
+    });
+  } catch (error) {
+    console.log("Error creating post inside postController" + error);
+    return res.status(500).json({ error: { message: error } });
+  }
   // console.log(title, content);
   return res.status(201).json({ message: "Created" });
 }
