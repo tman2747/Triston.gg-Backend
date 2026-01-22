@@ -44,6 +44,7 @@ model Post{
   @@index([authorId])
   @@index([createdAt])
 }
+
 model Comment{
   id String @id @default(uuid())
 
