@@ -28,3 +28,31 @@ export async function getPosts(req, res, next) {
   try {
   } catch (error) {}
 }
+
+export async function getPost(req, res, next) {
+  console.log("hit");
+  try {
+    const slug = req.params.slug.toLowerCase();
+    const posts = await prisma.post.findFirst({
+      where: { slug: slug },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        content: true,
+        createdAt: true,
+        author: { select: { username: true } },
+      },
+    });
+
+    if (posts !== null) {
+      console.log(posts);
+      res.status(200).json(posts);
+    } else {
+      res.status(404).json({});
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({});
+  }
+}
