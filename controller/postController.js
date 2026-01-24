@@ -67,7 +67,6 @@ export async function createPost(req, res, next) {
   const slug = getMaxSlug(baseSlug, existing);
   const excerpt = await getExcerpt(content);
   const authorId = req.user.id;
-  console.log(title, slug, excerpt, content, authorId);
   try {
     await prisma.post.create({
       data: {
@@ -82,6 +81,5 @@ export async function createPost(req, res, next) {
     console.log("Error creating post inside postController" + error);
     return res.status(500).json({ error: { message: error } });
   }
-  // console.log(title, content);
   return res.status(201).json({ message: "Created" });
 }

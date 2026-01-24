@@ -11,7 +11,6 @@ export const getProtectedRoute = (req, res, next) => {
 };
 
 export async function getPosts(req, res, next) {
-  console.log("hit");
   const posts = await prisma.post.findMany({
     orderBy: { createdAt: "desc" },
     select: {
@@ -30,7 +29,6 @@ export async function getPosts(req, res, next) {
 }
 
 export async function getPost(req, res, next) {
-  console.log("hit");
   try {
     const slug = req.params.slug.toLowerCase();
     const posts = await prisma.post.findFirst({
@@ -46,7 +44,6 @@ export async function getPost(req, res, next) {
     });
 
     if (posts !== null) {
-      console.log(posts);
       res.status(200).json(posts);
     } else {
       res.status(404).json({});

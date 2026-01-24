@@ -1,9 +1,6 @@
 import express from "express";
 import path from "node:path";
-import session from "express-session";
-import { PrismaSessionStore } from "@quixo3/prisma-session-store";
 import { fileURLToPath } from "node:url";
-import { prisma } from "./lib/prisma.ts";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
@@ -18,10 +15,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-
-// set view engine
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "ejs");
 
 // add ref to public path for ejs?
 const assetsPath = path.join(__dirname, "public");

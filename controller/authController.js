@@ -43,7 +43,7 @@ export const signup = async (req, res, next) => {
       where: { username: username },
     });
     if (exist) {
-      console.log(true);
+      console.log("user already exist");
       res.status(409).json({ error: { message: "Username is taken" } });
       return;
     }
