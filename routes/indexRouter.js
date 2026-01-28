@@ -16,8 +16,6 @@ function isAdmin(req, res, next) {
 }
 
 indexRouter.get("/protectedPage", isAuthed, indexContoller.getProtectedRoute);
-indexRouter.get("/posts/:slug", indexContoller.getPost);
-indexRouter.get("/posts", indexContoller.getPosts);
 indexRouter.get("/", indexContoller.getIndex);
 indexRouter.get("/{*error}", (req, res) => {
   res.status(404).send("404 PAGE NOT FOUND. (this message is in index router)");

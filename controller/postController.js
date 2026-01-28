@@ -60,6 +60,12 @@ export async function createPost(req, res, next) {
   const title = req.body.title;
   const baseSlug = slugify(req.body.title);
   const content = req.body.content;
+
+  if (title == "" || content == "") {
+    return res
+      .status(400)
+      .json({ error: { message: "Title or content cannot be empty" } });
+  }
   const existing = await prisma.post.findMany({
     where: { slug: { startsWith: baseSlug } },
     select: { slug: true },
@@ -82,4 +88,48 @@ export async function createPost(req, res, next) {
     return res.status(500).json({ error: { message: error } });
   }
   return res.status(201).json({ message: "Created" });
+}
+
+// todo Cache posts
+export async function getPosts(req, res, next) {
+  const posts = await prisma.post.findMany({
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      excerpt: true,
+      createdAt: true,
+      author: { select: { username: true } },
+    },
+  });
+  res.status(200).json(posts);
+  try {
+  } catch (error) {}
+}
+
+export async function getPost(req, res, next) {
+  try {
+    const slug = req.params.slug.toLowerCase();
+    const posts = await prisma.post.findFirst({
+      where: { slug: slug },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        content: true,
+        createdAt: true,
+        author: { select: { username: true } },
+      },
+    });
+
+    if (posts !== null) {
+      res.status(200).json(posts);
+    } else {
+      res.status(404).json({}); //TODO add  message
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({});
+  }
 }

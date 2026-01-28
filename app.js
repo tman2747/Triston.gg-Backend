@@ -34,7 +34,7 @@ app.use(
   }),
 );
 // routes
-app.use("/create", postRouter);
+app.use("/posts", postRouter);
 app.use("/auth", authRouter);
 app.use("/users", usersRouter);
 app.use("/", indexRouter);
