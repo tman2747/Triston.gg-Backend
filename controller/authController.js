@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma.ts";
 import bcrypt from "bcryptjs";
-import { use } from "react";
 
 export function generateAccessToken(user) {
   return jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: "5s" });
@@ -78,7 +77,9 @@ export const login = async (req, res, next) => {
       user.password,
     );
     if (!passwordMatch) {
-      return res.status(401).json({ msg: "Invalid credentials" });
+      return res
+        .status(401)
+        .json({ error: { message: "Invalid credentials" } });
     }
 
     const infoWeWantSerlized = { id: user.id, name: username, role: user.role };
