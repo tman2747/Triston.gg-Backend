@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(cookieParser());
-const allowedOrigins = ["http://localhost:5173", "http://localhost:4173"]; // these are both dev servers
+const allowedOrigins = JSON.parse(process.env.CORS); // these are both dev servers
 app.use(
   cors({
     origin: allowedOrigins, // Vite dev server
