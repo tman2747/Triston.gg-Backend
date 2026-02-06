@@ -3,7 +3,7 @@ import { prisma } from "../lib/prisma.ts";
 import bcrypt from "bcryptjs";
 
 export function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: "5s" });
+  return jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: "15m" });
 }
 
 function generateRefreshToken(payload) {
