@@ -29,12 +29,12 @@
     "pg": "^8.16.3",
     "remark": "^15.0.1",
     "remark-parse": "^11.0.0",
+    "prisma": "^7.0.1",
     "strip-markdown": "^6.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
     "@types/pg": "^8.15.6",
-    "prisma": "^7.0.1",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }
