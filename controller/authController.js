@@ -88,8 +88,8 @@ export const login = async (req, res, next) => {
     const refreshToken = generateRefreshToken({ id: infoWeWantSerlized.id });
     res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
-      secure: false, // TODO change to true in production
-      sameSite: "lax", // review this
+      secure: true,
+      sameSite: "none",
       path: "/auth/refresh",
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
@@ -138,8 +138,8 @@ export const refresh = async (req, res) => {
     const newRefreshToken = generateRefreshToken({ id: user.id });
     res.cookie("refresh_token", newRefreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       path: "/auth/refresh",
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
