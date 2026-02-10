@@ -21,9 +21,11 @@ model User {
   firstName String?
   lastName String?
   role      Role     @default(USER)
-  
+
   posts Post[]
-  comments Comment[]
+  postComments PostComment[]
+  eventComments EventComment[]
+  event Event[]
 }
 
 model Post{
@@ -39,13 +41,13 @@ model Post{
   authorId String
   author User @relation(fields: [authorId],references: [id], onDelete: Cascade)
 
-  comments Comment[]
+  comments PostComment[]
 
   @@index([authorId])
   @@index([createdAt])
 }
 
-model Comment{
+model PostComment{
   id String @id @default(uuid())
 
   postId String
@@ -55,9 +57,9 @@ model Comment{
   author User @relation(fields: [authorId],references: [id], onDelete: Cascade)
 
   parentId String?
-  parent Comment? @relation("CommentReplies",fields: [parentId],references: [id],onDelete: SetNull)
-  replies Comment[] @relation("CommentReplies")
-  
+  parent PostComment? @relation("PostCommentReplies",fields: [parentId],references: [id],onDelete: SetNull)
+  replies PostComment[] @relation("PostCommentReplies")
+
   body String
   anonymous Boolean @default(false)
 
@@ -68,6 +70,47 @@ model Comment{
   @@index([authorId, createdAt])
   @@index([parentId])
 }
+
+model Event{
+  id String @id @default(uuid())
+  title String 
+  host String
+  startTime DateTime
+  endTime DateTime
+  date DateTime
+  location String
+  description String
+
+  authorId String
+  author User @relation(fields: [authorId],references: [id],onDelete: Cascade)
+  comments EventComment[]
+}
+
+model EventComment{
+  id String @id @default(uuid())
+
+  eventId String
+  event Event @relation(fields: [eventId],references: [id], onDelete: Cascade)
+
+  authorId String
+  author User @relation(fields: [authorId],references: [id], onDelete: Cascade)
+
+  parentId String?
+  parent EventComment? @relation("EventCommentReplies",fields: [parentId],references: [id],onDelete: SetNull)
+  replies EventComment[] @relation("EventCommentReplies")
+
+  body String
+  anonymous Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([eventId, createdAt])
+  @@index([authorId, createdAt])
+  @@index([parentId])
+}
+
+
 
 enum Role { 
   USER

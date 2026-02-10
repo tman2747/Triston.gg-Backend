@@ -211,7 +211,7 @@ export async function postComment(req, res, next) {
         .json({ message: "Message must be longer than 2 char" });
     }
     const postId = currentPost.id;
-    const newComment = await prisma.comment.create({
+    const newComment = await prisma.postComment.create({
       data: {
         postId: postId,
         authorId: commentAuthorId,
@@ -229,7 +229,7 @@ export async function deleteComment(req, res, next) {
   console.log(req.user);
   console.log(req.body.content);
   try {
-    const comment = await prisma.comment.findUnique({
+    const comment = await prisma.postComment.findUnique({
       where: { id: req.body.content },
     });
     if (!comment) {
@@ -240,7 +240,7 @@ export async function deleteComment(req, res, next) {
       return;
     }
     if (comment.authorId == req.user.id || req.user.role == "TRISTON") {
-      await prisma.comment.delete({ where: { id: comment.id } });
+      await prisma.postComment.delete({ where: { id: comment.id } });
     }
   } catch (error) {
     console.log(error);
