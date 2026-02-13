@@ -73,13 +73,16 @@ model PostComment{
 
 model Event{
   id String @id @default(uuid())
+  slug String @unique
+
   title String 
   host String
-  startTime DateTime
-  endTime DateTime
+  startTime String
+  endTime String?
   date DateTime
-  location String
-  description String
+  location String?
+  description String?
+  excerpt String?
 
   authorId String
   author User @relation(fields: [authorId],references: [id],onDelete: Cascade)

@@ -9,6 +9,7 @@ import { indexRouter } from "./routes/indexRouter.js";
 import { usersRouter } from "./routes/usersRouter.js";
 import { authRouter } from "./routes/authRouter.js";
 import { postRouter } from "./routes/postRouter.js";
+import { eventRouter } from "./routes/eventRouter.js";
 
 // ESM replacement for __dirname / __filename  because esm does not give you __filename as it is built for the browser or something XD
 const __filename = fileURLToPath(import.meta.url);
@@ -35,6 +36,7 @@ app.use(
   }),
 );
 // routes
+app.use("/events", eventRouter);
 app.use("/posts", postRouter);
 app.use("/auth", authRouter);
 app.use("/users", usersRouter);
