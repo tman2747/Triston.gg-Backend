@@ -18,8 +18,9 @@ export const validateSignup = [
   body("email")
     .notEmpty()
     .withMessage("Email is required")
+    .bail() // should probably use this after every validation to stop checking if we already know its wrong
     .isLength({ min: 3 })
-    .withMessage("Password must be at least 3 characters"),
+    .withMessage("Email must be at least 3 characters"),
 
   (req, res, next) => {
     const errors = validationResult(req);
