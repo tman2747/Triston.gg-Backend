@@ -14,24 +14,24 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  username  String   @unique
-  password  String   @db.VarChar(120)
-  email String @db.VarChar(320)
+  id        String  @id @default(uuid())
+  username  String  @unique
+  password  String  @db.VarChar(120)
+  email     String  @db.VarChar(320)
   firstName String?
-  lastName String?
-  role      Role     @default(USER)
+  lastName  String?
+  role      Role    @default(USER)
 
-  posts Post[]
-  postComments PostComment[]
+  posts         Post[]
+  postComments  PostComment[]
   eventComments EventComment[]
-  event Event[]
+  event         Event[]
 }
 
-model Post{
-  id  String @id @default(uuid())
-  title String
-  slug String @unique
+model Post {
+  id      String @id @default(uuid())
+  title   String
+  slug    String @unique
   excerpt String
   content String
 
@@ -39,7 +39,7 @@ model Post{
   updatedAt DateTime @updatedAt
 
   authorId String
-  author User @relation(fields: [authorId],references: [id], onDelete: Cascade)
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   comments PostComment[]
 
@@ -47,20 +47,20 @@ model Post{
   @@index([createdAt])
 }
 
-model PostComment{
+model PostComment {
   id String @id @default(uuid())
 
   postId String
-  post Post @relation(fields: [postId],references: [id], onDelete: Cascade)
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   authorId String
-  author User @relation(fields: [authorId],references: [id], onDelete: Cascade)
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   parentId String?
-  parent PostComment? @relation("PostCommentReplies",fields: [parentId],references: [id],onDelete: SetNull)
-  replies PostComment[] @relation("PostCommentReplies")
+  parent   PostComment?  @relation("PostCommentReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies  PostComment[] @relation("PostCommentReplies")
 
-  body String
+  body      String
   anonymous Boolean @default(false)
 
   createdAt DateTime @default(now())
@@ -71,38 +71,38 @@ model PostComment{
   @@index([parentId])
 }
 
-model Event{
-  id String @id @default(uuid())
+model Event {
+  id   String @id @default(uuid())
   slug String @unique
 
-  title String 
-  host String
-  startTime String
-  endTime String?
-  date DateTime
-  location String?
+  title       String
+  host        String
+  startTime   String
+  endTime     String?
+  date        DateTime
+  location    String?
   description String?
-  excerpt String?
+  excerpt     String?
 
   authorId String
-  author User @relation(fields: [authorId],references: [id],onDelete: Cascade)
+  author   User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments EventComment[]
 }
 
-model EventComment{
+model EventComment {
   id String @id @default(uuid())
 
   eventId String
-  event Event @relation(fields: [eventId],references: [id], onDelete: Cascade)
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   authorId String
-  author User @relation(fields: [authorId],references: [id], onDelete: Cascade)
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   parentId String?
-  parent EventComment? @relation("EventCommentReplies",fields: [parentId],references: [id],onDelete: SetNull)
-  replies EventComment[] @relation("EventCommentReplies")
+  parent   EventComment?  @relation("EventCommentReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies  EventComment[] @relation("EventCommentReplies")
 
-  body String
+  body      String
   anonymous Boolean @default(false)
 
   createdAt DateTime @default(now())
@@ -113,10 +113,8 @@ model EventComment{
   @@index([parentId])
 }
 
-
-
-enum Role { 
+enum Role {
   USER
-  ADMIN 
+  ADMIN
   TRISTON
-  }
+}

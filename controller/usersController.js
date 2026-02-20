@@ -17,10 +17,16 @@ export const getUserById = async (req, res, next) => {
     res.sendStatus(400);
     return;
   }
-  console.log(req.headers["authorization"]);
   const user = await prisma.user.findFirst({
-    where: { username: req.params.id },
-    select: { id: true, username: true, role: true },
+    where: { id: req.params.id },
+    select: {
+      id: true,
+      username: true,
+      role: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+    },
   });
-  res.json(user);
+  res.status(200).json(user);
 };

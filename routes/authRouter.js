@@ -1,7 +1,6 @@
 import express from "express";
 import * as authController from "../controller/authController.js";
 import { validateSignup } from "../validators/authValidators.js";
-import jwt from "jsonwebtoken";
 
 const authRouter = express.Router();
 
@@ -11,7 +10,7 @@ authRouter.post("/signUp", validateSignup, authController.signup);
 authRouter.get(
   "/posts",
   authController.authenticateToken,
-  authController.getPosts
+  authController.getPosts,
 );
 authRouter.get("/me", authController.authenticateToken, authController.getMe);
 authRouter.post("/refresh", authController.refresh);
