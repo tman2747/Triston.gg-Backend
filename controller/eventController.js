@@ -155,7 +155,15 @@ export async function deleteEventComment(req, res, next) {
 
 export async function getEvents(req, res, next) {
   try {
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
     const events = await prisma.event.findMany({
+      where: {
+        date: {
+          gte: threeDaysAgo,
+        },
+      },
       orderBy: [{ date: "asc" }, { startTime: "asc" }],
       select: {
         id: true,
@@ -173,6 +181,7 @@ export async function getEvents(req, res, next) {
     res.status(200).json(events);
   } catch (error) {
     console.log(error);
+    next(error);
   }
 }
 
