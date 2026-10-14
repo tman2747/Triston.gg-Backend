@@ -210,8 +210,9 @@ model Project {
   linkLabel String? // optional text for the main button, otherwise it's worked out from the link
   sourceUrl String? // github etc.
   imageUrl  String?
-  pinned    Boolean @default(false)
+  pinned    Boolean  @default(false)
   position  Int? // set when the admin drags projects into a custom order, null = automatic order
+  date      DateTime @default(now()) // "newest first" sorts by this, editable so projects can be back-dated
 
   // game servers (any category): address, running switch and live status
   isServer      Boolean     @default(false)

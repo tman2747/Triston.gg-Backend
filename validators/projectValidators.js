@@ -64,6 +64,11 @@ export const validateProject = [
     .isURL(httpUrl)
     .withMessage("Use a full image link starting with https://"),
   body("pinned").optional().isBoolean().toBoolean(),
+  // "YYYY-MM-DD" from the date picker, used for the newest-first order
+  body("date")
+    .optional({ values: "falsy" })
+    .isISO8601()
+    .withMessage("Enter a valid date"),
 
   // server fields only matter for servers
   body("serverGame")

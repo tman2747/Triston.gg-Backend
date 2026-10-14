@@ -14,6 +14,8 @@ function projectData(body) {
     sourceUrl: body.sourceUrl || null,
     imageUrl: body.imageUrl || null,
     pinned: Boolean(body.pinned),
+    // left out = keep it as is (or now, for a new project)
+    date: body.date ? new Date(body.date) : undefined,
     isServer,
     serverGame: isServer ? body.serverGame : null,
     serverAddress: isServer ? body.serverAddress : null,
@@ -33,6 +35,7 @@ const projectSelect = {
   imageUrl: true,
   pinned: true,
   position: true,
+  date: true,
   isServer: true,
   serverGame: true,
   serverAddress: true,
@@ -58,11 +61,17 @@ async function categoryMissing(req, res) {
 }
 
 // the order projects show in:
-// - automatic (nobody has dragged them yet, or it was reset): pinned, then running servers, then newest
+// - automatic (nobody has dragged them yet, or it was reset): pinned, then running servers, then
+//   newest by date (editable, so projects can be back-dated), same date = the one added last first
 // - custom (the admin dragged them): exactly the saved order, projects added since then go first
 async function listProjects() {
   const projects = await prisma.project.findMany({
-    orderBy: [{ pinned: "desc" }, { serverRunning: "desc" }, { createdAt: "desc" }],
+    orderBy: [
+      { pinned: "desc" },
+      { serverRunning: "desc" },
+      { date: "desc" },
+      { createdAt: "desc" },
+    ],
     select: projectSelect,
   });
   const custom = projects.some((p) => p.position !== null);
