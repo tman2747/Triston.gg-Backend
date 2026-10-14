@@ -1,6 +1,9 @@
 import express from "express";
 import * as postController from "../controller/postController.js";
-import { authenticateToken } from "../controller/authController.js";
+import {
+  authenticateToken,
+  optionalAuth,
+} from "../controller/authController.js";
 
 const postRouter = express.Router();
 
@@ -15,9 +18,20 @@ postRouter.delete(
   authenticateToken,
   postController.deleteComment,
 );
+postRouter.put(
+  "/:slug/reaction",
+  authenticateToken,
+  postController.reactToPost,
+);
+postRouter.put(
+  "/:slug/comments/:commentId/reaction",
+  authenticateToken,
+  postController.reactToComment,
+);
 postRouter.post("/create", authenticateToken, postController.createPost);
 postRouter.put("/:slug", authenticateToken, postController.updatePost);
-postRouter.get("/:slug", postController.getPost);
+// optionalAuth so logged in users get their own reactions back
+postRouter.get("/:slug", optionalAuth, postController.getPost);
 postRouter.get("/", postController.getPosts);
 // usersRouter.put("/:id", usersController.updateUser);
 // usersRouter.delete("/:id", usersController.deleteUser);

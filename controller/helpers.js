@@ -42,3 +42,23 @@ export async function getExcerpt(content, maxLength = 134) {
 
   return text;
 }
+
+// --- likes / dislikes, shared by post and event comments ---
+
+// turns a list of { type, userId } into counts + what the current user picked
+export function summarizeReactions(reactions, userId) {
+  return {
+    likes: reactions.filter((r) => r.type === "LIKE").length,
+    dislikes: reactions.filter((r) => r.type === "DISLIKE").length,
+    myReaction: reactions.find((r) => r.userId === userId)?.type || null,
+  };
+}
+
+export const reactionSelect = { select: { type: true, userId: true } };
+
+// body: { type: "LIKE" | "DISLIKE" | null }, null removes your reaction
+// returns undefined when it's something else
+export function parseReactionType(type) {
+  if (type === null || type === "LIKE" || type === "DISLIKE") return type;
+  return undefined;
+}

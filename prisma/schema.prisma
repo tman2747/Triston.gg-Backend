@@ -26,6 +26,11 @@ model User {
   postComments  PostComment[]
   eventComments EventComment[]
   event         Event[]
+
+  postReactions         PostReaction[]
+  postCommentReactions  PostCommentReaction[]
+  eventRsvps            EventRsvp[]
+  eventCommentReactions EventCommentReaction[]
 }
 
 model Post {
@@ -41,7 +46,8 @@ model Post {
   authorId String
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  comments PostComment[]
+  comments  PostComment[]
+  reactions PostReaction[]
 
   @@index([authorId])
   @@index([createdAt])
@@ -57,8 +63,10 @@ model PostComment {
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   parentId String?
-  parent   PostComment?  @relation("PostCommentReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  parent   PostComment?  @relation("PostCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies  PostComment[] @relation("PostCommentReplies")
+
+  reactions PostCommentReaction[]
 
   body      String
   anonymous Boolean @default(false)
@@ -87,6 +95,41 @@ model Event {
   authorId String
   author   User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments EventComment[]
+  rsvps    EventRsvp[]
+}
+
+model EventCommentReaction {
+  id   String       @id @default(uuid())
+  type ReactionType
+
+  commentId String
+  comment   EventComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, userId])
+  @@index([userId])
+}
+
+// going / not going, one per user per event
+model EventRsvp {
+  id     String     @id @default(uuid())
+  status RsvpStatus
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([eventId, userId])
+  @@index([userId])
 }
 
 model EventComment {
@@ -99,8 +142,10 @@ model EventComment {
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   parentId String?
-  parent   EventComment?  @relation("EventCommentReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  parent   EventComment?  @relation("EventCommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies  EventComment[] @relation("EventCommentReplies")
+
+  reactions EventCommentReaction[]
 
   body      String
   anonymous Boolean @default(false)
@@ -111,6 +156,49 @@ model EventComment {
   @@index([eventId, createdAt])
   @@index([authorId, createdAt])
   @@index([parentId])
+}
+
+// thumbs up / thumbs down, one per user per post or comment
+model PostReaction {
+  id   String       @id @default(uuid())
+  type ReactionType
+
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@index([userId])
+}
+
+model PostCommentReaction {
+  id   String       @id @default(uuid())
+  type ReactionType
+
+  commentId String
+  comment   PostComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, userId])
+  @@index([userId])
+}
+
+enum ReactionType {
+  LIKE
+  DISLIKE
+}
+
+enum RsvpStatus {
+  GOING
+  NOT_GOING
 }
 
 enum Role {
