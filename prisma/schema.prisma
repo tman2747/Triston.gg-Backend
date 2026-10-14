@@ -31,6 +31,7 @@ model User {
   postCommentReactions  PostCommentReaction[]
   eventRsvps            EventRsvp[]
   eventCommentReactions EventCommentReaction[]
+  projects              Project[]
 }
 
 model Post {
@@ -194,6 +195,54 @@ model PostCommentReaction {
 enum ReactionType {
   LIKE
   DISLIKE
+}
+
+// a card on the /projects hub: web projects, games, steam mods, game servers, tools...
+model Project {
+  id          String @id @default(uuid())
+  title       String
+  description String // optional on the site, saved as "" when empty
+
+  categoryId String
+  category   ProjectCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  url       String? // main link: a site, steam workshop page, game page or a page on this site like /pomodoro
+  linkLabel String? // optional text for the main button, otherwise it's worked out from the link
+  sourceUrl String? // github etc.
+  imageUrl  String?
+  pinned    Boolean @default(false)
+  position  Int? // set when the admin drags projects into a custom order, null = automatic order
+
+  // game servers (any category): address, running switch and live status
+  isServer      Boolean     @default(false)
+  serverGame    ServerGame?
+  serverAddress String?
+  serverRunning Boolean     @default(false) // flipped on while the server is up
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([categoryId])
+}
+
+// categories on the projects page, added / deleted from the site
+// "other" can't be deleted: projects from deleted categories move there
+model ProjectCategory {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  slug      String    @unique // used in the filter link, /projects?type=steam-mods
+  createdAt DateTime  @default(now())
+  projects  Project[]
+}
+
+enum ServerGame {
+  MINECRAFT
+  RUST
+  OTHER
 }
 
 enum RsvpStatus {

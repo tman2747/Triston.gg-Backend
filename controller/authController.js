@@ -191,3 +191,9 @@ export function optionalAuth(req, res, next) {
   if (!token) return next();
   return authenticateToken(req, res, next);
 }
+
+// use after authenticateToken: only the TRISTON (admin) role gets through
+export function requireTriston(req, res, next) {
+  if (req.user?.role === "TRISTON") return next();
+  return res.status(403).json({ error: { message: "Only admins can do that" } });
+}
