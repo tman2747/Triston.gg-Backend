@@ -155,3 +155,12 @@ export const logout = async (req, res) => {
   res.clearCookie("refresh_token", { path: "/auth/refresh" });
   return res.sendStatus(204);
 };
+
+// use after authenticateToken on routes with an :id param for a user
+// only lets the user themselves (or TRISTON) through
+export function requireSelf(req, res, next) {
+  if (req.user.id === req.params.id || req.user.role === "TRISTON") {
+    return next();
+  }
+  return res.status(403).json({ error: { message: "Forbidden" } });
+}

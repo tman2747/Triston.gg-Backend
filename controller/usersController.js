@@ -1,5 +1,15 @@
 import { prisma } from "../lib/prisma.ts";
 
+// fields that are safe to send back to the user themselves (no password)
+const profileSelect = {
+  id: true,
+  username: true,
+  role: true,
+  email: true,
+  firstName: true,
+  lastName: true,
+};
+
 export const createUser = (req, res, next) => {
   res.json({ name: "hello POST" });
 };
@@ -17,16 +27,34 @@ export const getUserById = async (req, res, next) => {
     res.sendStatus(400);
     return;
   }
-  const user = await prisma.user.findFirst({
+  const user = await prisma.user.findUnique({
     where: { id: req.params.id },
-    select: {
-      id: true,
-      username: true,
-      role: true,
-      email: true,
-      firstName: true,
-      lastName: true,
-    },
+    select: profileSelect,
   });
+  if (!user) {
+    return res.status(404).json({ error: { message: "User not found" } });
+  }
   res.status(200).json(user);
+};
+
+export const updateUser = async (req, res, next) => {
+  try {
+    const user = await prisma.user.update({
+      where: { id: req.params.id },
+      data: {
+        // store empty names as null so they match users who never set one
+        firstName: req.body.firstName || null,
+        lastName: req.body.lastName || null,
+        email: req.body.email,
+      },
+      select: profileSelect,
+    });
+    res.status(200).json(user);
+  } catch (error) {
+    // P2025 = record to update was not found
+    if (error.code === "P2025") {
+      return res.status(404).json({ error: { message: "User not found" } });
+    }
+    next(error);
+  }
 };
