@@ -26,6 +26,8 @@ eventRouter.put(
   authenticateToken,
   eventContoller.reactToEventComment,
 );
+// .ics file for adding the event to Apple Calendar / Outlook / etc.
+eventRouter.get("/:slug/calendar.ics", eventContoller.getEventCalendar);
 // optionalAuth so logged in users get their own rsvp back
 eventRouter.get("/:slug", optionalAuth, eventContoller.getEvent);
 eventRouter.get("/", eventContoller.getEvents);

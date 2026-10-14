@@ -9,4 +9,3 @@ export const getIndex = (req, res, next) => {
 export const getProtectedRoute = (req, res, next) => {
   res.render("protectedPage");
 };
-

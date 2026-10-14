@@ -391,3 +391,103 @@ export async function getEvent(req, res, next) {
     res.status(404).json({});
   }
 }
+
+// --- add to calendar (.ics file) ---
+
+// events are saved as midnight UTC of their day plus "HH:MM" times with no timezone,
+// so calendars get "floating" times: 5:00 PM shows as 5:00 PM in whatever timezone the calendar is in
+function eventTimes(event) {
+  const [y, m, d] = event.date.toISOString().slice(0, 10).split("-").map(Number);
+  const [sh, sm] = event.startTime.split(":").map(Number);
+  const start = new Date(Date.UTC(y, m - 1, d, sh, sm));
+  let end;
+  if (event.endTime) {
+    const [eh, em] = event.endTime.split(":").map(Number);
+    end = new Date(Date.UTC(y, m - 1, d, eh, em));
+    // ends at or before it starts (like 5 PM - 2 AM) means it ends the next day
+    if (end <= start) end.setUTCDate(end.getUTCDate() + 1);
+  } else {
+    // calendars need an end, guess 2 hours when there isn't one
+    end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
+  }
+  return { start, end };
+}
+
+// 20261231T170000 (no Z on the end = floating time)
+const icsDate = (date) => date.toISOString().slice(0, 19).replace(/[-:]/g, "");
+
+// commas, semicolons, backslashes and newlines have to be escaped in .ics text
+const icsText = (text) =>
+  text
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\;")
+    .replace(/,/g, "\\,")
+    .replace(/\r?\n/g, "\\n");
+
+// .ics lines can't be longer than 75 bytes, longer ones continue on the next line after a space
+function foldLine(line) {
+  if (Buffer.byteLength(line) <= 75) return line;
+  const parts = [];
+  let current = "";
+  let size = 0;
+  for (const char of line) {
+    const bytes = Buffer.byteLength(char);
+    // the space at the start of continuation lines counts too
+    if (size + bytes > (parts.length ? 74 : 75)) {
+      parts.push(current);
+      current = "";
+      size = 0;
+    }
+    current += char;
+    size += bytes;
+  }
+  parts.push(current);
+  return parts.join("\r\n ");
+}
+
+// the frontend's address, for the "view event" link in the calendar entry
+function frontendUrl() {
+  if (process.env.FRONTEND_URL) return process.env.FRONTEND_URL;
+  try {
+    return JSON.parse(process.env.CORS)[0];
+  } catch {
+    return null;
+  }
+}
+
+// GET /events/:slug/calendar.ics - Apple Calendar, Outlook, etc. open this to add the event
+export async function getEventCalendar(req, res, next) {
+  const event = await prisma.event.findUnique({
+    where: { slug: req.params.slug.toLowerCase() },
+  });
+  if (!event) {
+    return res.status(404).json({ error: { message: "Event not found" } });
+  }
+  const { start, end } = eventTimes(event);
+  const site = frontendUrl();
+  const link = site ? `${site}/events/${event.slug}` : null;
+  const description = [event.description, link].filter(Boolean).join("\n\n");
+
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Triston Land//Blog Events//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    `UID:${event.id}@triston-land-blog`,
+    `DTSTAMP:${icsDate(new Date())}Z`,
+    `DTSTART:${icsDate(start)}`,
+    `DTEND:${icsDate(end)}`,
+    `SUMMARY:${icsText(event.title)}`,
+    description && `DESCRIPTION:${icsText(description)}`,
+    event.location && `LOCATION:${icsText(event.location)}`,
+    link && `URL:${link}`,
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].filter(Boolean);
+
+  res.set("Content-Type", "text/calendar; charset=utf-8");
+  res.set("Content-Disposition", `attachment; filename="${event.slug}.ics"`);
+  return res.send(lines.map(foldLine).join("\r\n") + "\r\n");
+}
